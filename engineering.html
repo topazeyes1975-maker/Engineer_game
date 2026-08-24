@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fonda's Engineering Sandbox: Level 1 - The Lever</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Fonda's Engineering Sandbox: Level 1 - The Lever</title>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -42,6 +42,12 @@
             font-size: 0.95rem;
             line-height: 1.5;
         }
+        .container, button, input, .challenge-panel {
+    -webkit-touch-callout: none; /* Prevents the popup menu on iOS/Android Chrome */
+    -webkit-user-select: none;
+    user-select: none;
+        }
+        
         .target-panel {
             background: rgba(248, 113, 113, 0.1);
             border: 1px solid rgba(248, 113, 113, 0.3);
