@@ -60,9 +60,14 @@
         .quiz-section h3 { margin-top: 0; color: var(--dagger-gold); font-size: 1.1rem; }
         label { display: block; margin-bottom: 8px; font-size: 0.9rem; cursor: pointer; }
         input[type="radio"] { margin-right: 8px; }
-        button#forgeBtn {
-            background: var(--accent);
-            color: #000;
+        
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        button#forgeBtn, .shop-btn {
             border: none;
             padding: 12px;
             font-weight: bold;
@@ -70,9 +75,22 @@
             cursor: pointer;
             width: 100%;
             font-size: 1rem;
-            margin-top: 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+        }
+        button#forgeBtn {
+            background: var(--accent);
+            color: #000;
         }
         button#forgeBtn:hover { opacity: 0.9; }
+        .shop-btn {
+            background: #334155;
+            color: var(--text);
+            border: 1px solid #475569;
+        }
+        .shop-btn:hover { background: #475569; }
+
         #status { text-align: center; font-weight: bold; margin-top: 15px; min-height: 24px; }
         .nav-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 15px; }
         .next-btn { display: none; background: var(--success); color: #000; border: none; padding: 12px; font-weight: bold; border-radius: 6px; cursor: pointer; text-align: center; text-decoration: none;}
@@ -116,8 +134,10 @@
         <label><input type="radio" name="blade" value="wrong2"> Past the very end of Module 3</label>
     </div>
 
-    <button id="forgeBtn" onclick="evaluateDagger()">Attempt to Forge Puzzle Dagger</button>
-    <button class="shop-btn" onclick="location.href='blue-tinkerluff.html'">🛒 Shop: Parts & Codes list</button>
+    <div class="action-grid">
+        <button id="forgeBtn" onclick="evaluateDagger()">Attempt to Forge Puzzle Dagger</button>
+        <a href="blue-tinkerluff.html" class="shop-btn">🛒 Shop: Parts & Codes</a>
+    </div>
     
     <div id="status"></div>
     
@@ -147,8 +167,6 @@
         ctx.lineTo(550, 100);
         ctx.stroke();
 
-        // When progress = 0: pieces are spaced out (Hilt at x=130, Crossguard at x=280, Blade at x=450)
-        // When progress = 1: pieces slide together and lock seamlessly (Hilt at 180, Crossguard at 240, Blade at 280)
         let hiltX = 130 + (50 * progress);
         let crossguardX = 280 - (40 * progress);
         let bladeX = 450 - (170 * progress);
@@ -185,7 +203,7 @@
 
     function animateAssembly() {
         if (animationProgress < 1) {
-            animationProgress += 0.05; // speed of assembly
+            animationProgress += 0.05; 
             if (animationProgress > 1) animationProgress = 1;
             drawDagger(animationProgress);
             animId = requestAnimationFrame(animateAssembly);
@@ -221,7 +239,6 @@
         }
     }
 
-    // Initial draw (separated state)
     drawDagger(0);
 </script>
 
