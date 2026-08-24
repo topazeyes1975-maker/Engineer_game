@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
     <title>Fhonda's Engineering Sandbox - Hub</title>
     <style>
         :root {
@@ -26,6 +27,12 @@
             justify-content: center;
             min-height: 100vh;
         }
+        .container, button, input, .challenge-panel {
+    -webkit-touch-callout: none; /* Prevents the popup menu on iOS/Android Chrome */
+    -webkit-user-select: none;
+    user-select: none;
+        }
+        
         .container {
             max-width: 650px;
             width: 100%;
