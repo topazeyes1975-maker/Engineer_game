@@ -55,7 +55,7 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             padding: 12px;
             border-radius: 8px;
-            font-size: 0.85srem;
+            font-size: 0.85rem;
         }
         .ref-card h4 { margin: 0 0 6px 0; color: var(--cpp-gold); font-size: 0.95rem; }
         .ref-card p { margin: 0; color: #94a3b8; font-size: 0.8rem; line-height: 1.4; }
@@ -100,9 +100,13 @@
         }
         .puzzle-piece:hover { background: var(--puzzle-hover); border-color: var(--accent); }
         
-        button#compileBtn {
-            background: var(--accent);
-            color: #000;
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        button#compileBtn, .shop-btn {
             border: none;
             padding: 12px;
             font-weight: bold;
@@ -110,8 +114,22 @@
             cursor: pointer;
             width: 100%;
             font-size: 1rem;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+        }
+        button#compileBtn {
+            background: var(--accent);
+            color: #000;
         }
         button#compileBtn:hover { opacity: 0.9; }
+        .shop-btn {
+            background: #334155;
+            color: var(--text);
+            border: 1px solid #475569;
+        }
+        .shop-btn:hover { background: #475569; }
+
         #status { text-align: center; font-weight: bold; margin-top: 15px; min-height: 24px; }
         .nav-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 15px; }
         .next-btn { display: none; background: var(--success); color: #000; border: none; padding: 12px; font-weight: bold; border-radius: 6px; cursor: pointer; text-align: center; text-decoration: none;}
@@ -157,16 +175,18 @@
 
         <div class="pieces-pool" id="poolZone">
             <div class="puzzle-piece" data-id="variables" onclick="selectPiece(this)">int globalCount = 0; const string APP = "Core";</div>
-            <div class="puzzle-piece" data-id="main" onclick="selectPiece(this)">int main() { cout << "SUCCESS"; while(true) {} }</div>
+            <div class="puzzle-piece" data-id="main" onclick="selectPiece(this)">int main() { cout &lt;&lt; "SUCCESS"; while(true) {} }</div>
             <div class="puzzle-piece" data-id="directives" onclick="selectPiece(this)">#include &lt;iostream&gt; \n#define MAX_BUFFER 1024</div>
             <div class="puzzle-piece" data-id="declarations" onclick="selectPiece(this)">void printHello(); int calculateArea(int w, int h);</div>
         </div>
     </div>
 
-    <button id="compileBtn" onclick="evaluatePuzzle()">Compile & Verify Source Structure</button>
-    <button class="shop-btn" onclick="location.href='blue-tinkerluff.html'">🛒 Shop: Parts & Codes list</button>
+    <div class="action-grid">
+        <button id="compileBtn" onclick="evaluatePuzzle()">Compile & Verify Source Structure</button>
+        <a href="blue-tinkerluff.html" class="shop-btn">🛒 Shop: Parts & Codes</a>
+    </div>
     
-            <div id="status"></div>
+    <div id="status"></div>
     
     <div class="nav-grid">
         <a href="engineerPart12.html" class="next-btn" id="nextBtn">Proceed to Level 12</a>
@@ -180,7 +200,6 @@
         const placeholder = document.getElementById('placeholderText');
         if (placeholder) placeholder.remove();
 
-        // Move piece from pool to stack zone
         document.getElementById('stackZone').appendChild(pieceElem);
         pieceElem.setAttribute('onclick', 'returnToPool(this)');
     }
@@ -195,9 +214,7 @@
         }
     }
 
-    function resetSelection() {
-        // Handled by individual piece clicks
-    }
+    function resetSelection() {}
 
     function evaluatePuzzle() {
         const stackZone = document.getElementById('stackZone');
@@ -209,7 +226,6 @@
             return;
         }
 
-        // Expected order: directives -> declarations -> variables -> main
         const correctOrder = ['directives', 'declarations', 'variables', 'main'];
         let userOrder = [];
 
