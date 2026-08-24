@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fonda's Engineering Sandbox: Level 4 - The Wheel & Axle</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Fonda's Engineering Sandbox: Level 4 - The Wheel & Axle</title>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -24,6 +24,12 @@
             flex-direction: column;
             align-items: center;
         }
+        .container, button, input, .challenge-panel {
+    -webkit-touch-callout: none; /* Prevents the popup menu on iOS/Android Chrome */
+    -webkit-user-select: none;
+    user-select: none;
+        }
+        
         .container {
             max-width: 700px;
             width: 100%;
