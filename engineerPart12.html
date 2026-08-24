@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Fonda's Engineering Sandbox: Level 12 - Hidden Object Bug Hunt</title>
+    <title>Fonda's Engineering Sandbox: Level 12 - The C++ Bug Hunt</title>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -15,61 +15,59 @@
             --warning: #facc15;
             --cpp-gold: #fbbf24;
         }
+        body, .container, button, select, input {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
         body {
             font-family: system-ui, -apple-system, sans-serif;
             background-color: var(--bg-color);
             color: var(--text);
             margin: 0;
-            padding: 20px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-        .container, button, input, .challenge-panel {
-    -webkit-touch-callout: none; /* Prevents the popup menu on iOS/Android Chrome */
-    -webkit-user-select: none;
-    user-select: none;
-        }
-        
         .container {
             max-width: 750px;
             width: 100%;
             background: var(--card-bg);
-            padding: 24px;
+            padding: 20px;
             border-radius: 12px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
         }
-        h1 { margin-top: 0; color: var(--accent); font-size: 1.5rem; text-align: center; }
+        h1 { margin-top: 0; color: var(--accent); font-size: 1.3rem; text-align: center; }
         .lesson {
             background: rgba(56, 189, 248, 0.1);
             border-left: 4px solid var(--accent);
-            padding: 12px 16px;
-            margin-bottom: 20px;
+            padding: 10px 14px;
+            margin-bottom: 15px;
             border-radius: 0 8px 8px 0;
-            font-size: 0.9rem;
-            line-height: 1.6;
+            font-size: 0.85rem;
+            line-height: 1.5;
         }
-        /* Hidden Object Checklist Panel */
         .checklist-panel {
             background: rgba(15, 23, 42, 0.8);
             border: 1px solid rgba(56, 189, 248, 0.3);
-            padding: 14px;
+            padding: 12px;
             border-radius: 8px;
             margin-bottom: 15px;
         }
-        .checklist-panel h3 { margin: 0 0 8px 0; color: var(--cpp-gold); font-size: 1rem; }
+        .checklist-panel h3 { margin: 0 0 8px 0; color: var(--cpp-gold); font-size: 0.95rem; }
         .target-list {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            gap: 6px;
             list-style: none;
             padding: 0;
             margin: 0;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
         }
         .target-item {
             background: rgba(255, 255, 255, 0.03);
-            padding: 6px 10px;
+            padding: 6px 8px;
             border-radius: 4px;
             border-left: 3px solid var(--warning);
             display: flex;
@@ -78,105 +76,105 @@
         }
         .target-item.found {
             border-left-color: var(--success);
-            color: #94a3b8;
+            color: #4ade80;
             text-decoration: line-through;
         }
-        
-        /* Code Editor / Hidden Object Field */
         .code-box {
             background: #090d16;
-            padding: 15px;
+            padding: 12px;
             border-radius: 8px;
             font-family: monospace;
-            font-size: 0.85rem;
-            line-height: 1.7;
+            font-size: 0.8rem;
+            line-height: 1.6;
             overflow-x: auto;
             border: 1px solid #334155;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             white-space: pre-wrap;
+            color: #cbd5e1;
         }
         .bug-line {
             cursor: pointer;
-            padding: 2px 4px;
-            border-radius: 4px;
-            transition: background 0.2s;
-            display: inline-block;
+            transition: all 0.3s ease;
         }
         .bug-line:hover {
-            background: rgba(56, 189, 248, 0.15);
-            color: var(--accent);
+            color: var(--error);
+            background: rgba(248, 113, 113, 0.1);
         }
-        
+        .bug-line.squashed {
+            background: rgba(74, 222, 128, 0.15);
+            color: var(--success);
+            border-bottom: 2px solid var(--success);
+            text-decoration: line-through;
+            cursor: default;
+        }
         .action-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 12px;
+            gap: 10px;
             margin-top: 10px;
         }
         .shop-btn {
             background: #334155;
             color: var(--text);
             border: 1px solid #475569;
-            padding: 12px;
+            padding: 10px;
             font-weight: bold;
             border-radius: 6px;
             cursor: pointer;
             width: 100%;
-            font-size: 1rem;
+            font-size: 0.95rem;
             text-align: center;
             text-decoration: none;
             display: inline-block;
         }
         .shop-btn:hover { background: #475569; }
 
-        #status { text-align: center; font-weight: bold; margin-top: 15px; min-height: 24px; }
-        .nav-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 15px; }
-        .next-btn { display: none; background: var(--success); color: #000; border: none; padding: 12px; font-weight: bold; border-radius: 6px; cursor: pointer; text-align: center; text-decoration: none;}
+        #status { text-align: center; font-weight: bold; margin-top: 12px; min-height: 22px; font-size: 0.9rem; }
+        .nav-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 12px; }
+        .next-btn { display: none; background: var(--success); color: #000; border: none; padding: 10px; font-weight: bold; border-radius: 6px; cursor: pointer; text-align: center; text-decoration: none;}
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Level 12: The C++ Bug Hunt (Hidden Object Code Game)</h1>
+    <h1>Level 12: The C++ Bug Hunt</h1>
     
     <div class="lesson">
         <strong>The Hidden Object Challenge:</strong> A broken C++ script has landed on your desk. Review your target checklist below, then inspect the code block and click on the <strong>4 hidden errors</strong> embedded in the code to debug the script!
     </div>
 
-    <!-- Hidden Object Target Checklist -->
     <div class="checklist-panel">
         <h3>🔍 Missing Items Checklist (Bugs to Find):</h3>
         <ul class="target-list">
             <li class="target-item" id="chk1">1. Missing Semicolon</li>
-            <li class="target-item" id="chk2">2. Undeclared Variable Typo</li>
+            <li class="target-item" id="chk2">2. Undeclared Variable Type</li>
             <li class="target-item" id="chk3">3. Unclosed Function Bracket</li>
             <li class="target-item" id="chk4">4. Misspelled Keyword</li>
         </ul>
     </div>
 
-    <!-- Interactive Code Field -->
     <div class="code-box" id="codeEditor">#include &lt;iostream&gt;
 #include &lt;string&gt;
 
 using namespace std;
 
-<span class="bug-line" data-bug="3" onclick="findBug(this, 3)">vokd initializeSystem()</span> {
-    int maxConnections = 500<span class="bug-line" data-bug="1" onclick="findBug(this, 1)"></span>
-    
+<span class="bug-line" id="b1" onclick="squashBug(1, 'void initializeSystem() { // 🐛 SQUASHED (Fixed keyword void)')">vokd initializeSystem() {</span>
+    int maxConnections = 500<span class="bug-line" id="b2" onclick="squashBug(2, '; // 🐛 SQUASHED (Added semicolon)')"> </span>;
+
     string serverName = "CoreAlpha";
-    <span class="bug-line" data-bug="2" onclick="findBug(this, 2)">cout &lt;&lt; serverStatuss &lt;&lt; endl;</span>
-}
+    <span class="bug-line" id="b3" onclick="squashBug(3, 'cout &lt;&lt; serverName &lt;&lt; endl; // 🐛 SQUASHED (Fixed variable name)')">cout &lt;&lt; serverstatus &lt;&lt; endl;</span>
+<span class="bug-line" id="b4" onclick="squashBug(4, '} // 🐛 SQUASHED (Closed bracket properly)')">}</span>
 
 int main() {
     initializeSystem();
-    <span class="bug-line" data-bug="4" onclick="findBug(this, 4)">returh 0;</span>
+    return 0;
 }</div>
 
     <div class="action-grid">
         <a href="blue-tinkerluff.html" class="shop-btn">🛒 Shop: Parts & Codes</a>
     </div>
 
-    <div id="status" style="color: var(--warning);">Find all 4 hidden code errors to complete the debug operation.</div>
+    <div id="status" style="color: var(--warning);">Scan the code carefully and tap the 4 hidden bugs!</div>
     
     <div class="nav-grid">
         <a href="engineerPart13.html" class="next-btn" id="nextBtn">Proceed to Level 13</a>
@@ -187,21 +185,19 @@ int main() {
     let foundBugs = { 1: false, 2: false, 3: false, 4: false };
     let totalFound = 0;
 
-    function findBug(element, bugId) {
-        if (foundBugs[bugId]) return; // Already found
+    function squashBug(bugId, fixedText) {
+        if (foundBugs[bugId]) return;
 
         foundBugs[bugId] = true;
         totalFound++;
 
-        // Style the found item in code
-        element.style.color = 'var(--success)';
-        element.style.backgroundColor = 'rgba(74, 222, 128, 0.15)';
-        element.style.borderBottom = '2px dashed var(--success)';
+        let lineElem = document.getElementById('b' + bugId);
+        lineElem.classList.add('squashed');
+        lineElem.textContent = fixedText;
 
-        // Cross off checklist item
         const checklistItem = document.getElementById('chk' + bugId);
         checklistItem.classList.add('found');
-        checklistItem.innerHTML += ' ✓ (Found)';
+        checklistItem.innerHTML = checklistItem.innerHTML.replace(' (found)', '') + ' ✓';
 
         if (totalFound === 4) {
             document.getElementById('status').style.color = 'var(--success)';
@@ -209,7 +205,7 @@ int main() {
             document.getElementById('nextBtn').style.display = 'block';
         } else {
             document.getElementById('status').style.color = 'var(--accent)';
-            document.getElementById('status').textContent = `Good catch! ${totalFound}/4 errors found. Keep scanning the code.`;
+            document.getElementById('status').textContent = `Bug squashed! 🐛 ${totalFound}/4 eliminated. Keep hunting.`;
         }
     }
 </script>
