@@ -101,6 +101,28 @@
             color: var(--accent);
         }
         
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        .shop-btn {
+            background: #334155;
+            color: var(--text);
+            border: 1px solid #475569;
+            padding: 12px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .shop-btn:hover { background: #475569; }
+
         #status { text-align: center; font-weight: bold; margin-top: 15px; min-height: 24px; }
         .nav-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 15px; }
         .next-btn { display: none; background: var(--success); color: #000; border: none; padding: 12px; font-weight: bold; border-radius: 6px; cursor: pointer; text-align: center; text-decoration: none;}
@@ -131,18 +153,22 @@
 #include &lt;string&gt;
 
 using namespace std;
-<button class="shop-btn" onclick="location.href='blue-tinkerluff.html'">🛒 Shop: Parts & Codes list</button>
+
 <span class="bug-line" data-bug="3" onclick="findBug(this, 3)">vokd initializeSystem()</span> {
     int maxConnections = 500<span class="bug-line" data-bug="1" onclick="findBug(this, 1)"></span>
     
     string serverName = "CoreAlpha";
-    <span class="bug-line" data-bug="2" onclick="findBug(this, 2)">cout << serverStatuss << endl;</span>
+    <span class="bug-line" data-bug="2" onclick="findBug(this, 2)">cout &lt;&lt; serverStatuss &lt;&lt; endl;</span>
 }
 
 int main() {
     initializeSystem();
     <span class="bug-line" data-bug="4" onclick="findBug(this, 4)">returh 0;</span>
 }</div>
+
+    <div class="action-grid">
+        <a href="blue-tinkerluff.html" class="shop-btn">🛒 Shop: Parts & Codes</a>
+    </div>
 
     <div id="status" style="color: var(--warning);">Find all 4 hidden code errors to complete the debug operation.</div>
     
