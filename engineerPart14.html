@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fhonda's Engineering Sandbox: Level 14 - Logic Gate Circuit Breaker</title>
+    <title>Fonda's Engineering Sandbox: Level 14 - Logic Gate Circuit Breaker</title>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -86,9 +86,13 @@
             margin-bottom: 15px;
             border-left: 3px solid var(--warning);
         }
-        button#testCircuit {
-            background: var(--accent);
-            color: #000;
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        button#testCircuit, .shop-btn {
             border: none;
             padding: 12px;
             font-weight: bold;
@@ -96,8 +100,22 @@
             cursor: pointer;
             width: 100%;
             font-size: 1rem;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+        }
+        button#testCircuit {
+            background: var(--accent);
+            color: #000;
         }
         button#testCircuit:hover { opacity: 0.9; }
+        .shop-btn {
+            background: #334155;
+            color: var(--text);
+            border: 1px solid #475569;
+        }
+        .shop-btn:hover { background: #475569; }
+
         #status { text-align: center; font-weight: bold; margin-top: 15px; min-height: 24px; }
         .nav-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 15px; }
         .next-btn { display: none; background: var(--success); color: #000; border: none; padding: 12px; font-weight: bold; border-radius: 6px; cursor: pointer; text-align: center; text-decoration: none;}
@@ -132,7 +150,11 @@
         </div>
     </div>
 
-    <button id="testCircuit" onclick="evaluateCircuit()">Run Boolean Circuit Test</button>
+    <div class="action-grid">
+        <button id="testCircuit" onclick="evaluateCircuit()">Run Boolean Circuit Test</button>
+        <a href="blue-tinkerluff.html" class="shop-btn">🛒 Shop: Parts & Codes</a>
+    </div>
+
     <div id="status"></div>
     
     <div class="nav-grid">
@@ -158,7 +180,6 @@
     }
 
     function evaluateCircuit() {
-        // C++ logic equivalent: (InputA && InputB) || (!InputC)
         let andResult = states.A && states.B;
         let notResult = !states.C;
         let finalVaultState = andResult || notResult;
