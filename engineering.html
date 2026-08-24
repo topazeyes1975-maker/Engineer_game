@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fonda's Engineering Sandbox: Level 1 - The Lever</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #38bdf8;
+            --text: #f8fafc;
+            --success: #4ade80;
+            --error: #f87171;
+            --shop-accent: #a855f7;
+        }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        h1 { margin-top: 0; color: var(--accent); font-size: 1.5rem; }
+        .lesson {
+            background: rgba(56, 189, 248, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .target-panel {
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            padding: 10px 16px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .target-panel span { color: #f87171; font-weight: bold; }
+        canvas {
+            background: #090d16;
+            border-radius: 8px;
+            width: 100%;
+            height: 220px;
+            display: block;
+            margin-bottom: 20px;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label { font-size: 0.85rem; margin-bottom: 6px; color: #94a3b8; }
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+        button {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 12px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.9; }
+        #status {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 15px;
+            min-height: 24px;
+        }
+        .nav-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        .next-btn {
+            display: none;
+            background: var(--success);
+        }
+        .shop-btn {
+            background: var(--shop-accent);
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Engineering Logic: Mechanical Advantage</h1>
+    
+    <div class="lesson">
+        <strong>The Engineering Principle:</strong> A lever allows you to move heavy loads using less force by manipulating distance. 
+        <em>Your Force × Your Distance = Load Weight × Load Distance</em>.
+    </div>
+
+    <!-- Permanent UI Panel showing target specs clearly -->
+    <div class="target-panel">
+        <div>Target Load: <span id="targetWeightText">20</span> kg</div>
+        <div>Target Distance: <span id="targetDistText">3</span> m away</div>
+    </div>
+
+    <canvas id="simCanvas" width="650" height="220"></canvas>
+
+    <div class="controls">
+        <div class="control-group">
+            <label for="weightInput">Your Effort Force: <span id="weightVal">10</span> kg</label>
+            <input type="range" id="weightInput" min="5" max="50" value="10">
+        </div>
+        <div class="control-group">
+            <label for="distInput">Your Distance from Center: <span id="distVal">5</span> m</label>
+            <input type="range" id="distInput" min="1" max="10" value="5">
+        </div>
+    </div>
+
+    <button id="testBtn">Test System Balance</button>
+    <div id="status"></div>
+  
+    <!-- Navigation Panel: Next Level & Shop Buttons -->
+    <div class="nav-grid">
+        <button class="next-btn" id="nextBtn" onclick="location.href='engineerPart2.html'">Next Level: Level 2</button>
+        <button class="shop-btn" onclick="location.href='blue-tinkerluff.html'">🛒 Shop: Parts & Codes list</button>
+    </div>
+</div>
+  
+<script>
+    const canvas = document.getElementById('simCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    const weightInput = document.getElementById('weightInput');
+    const distInput = document.getElementById('distInput');
+    const weightVal = document.getElementById('weightVal');
+    const distVal = document.getElementById('distVal');
+    const testBtn = document.getElementById('testBtn');
+    const statusDiv = document.getElementById('status');
+    const nextBtn = document.getElementById('nextBtn');
+
+    // Constants for the puzzle
+    const loadWeight = 20; // Resistance force (kg)
+    const loadDist = 3;   // Resistance distance from fulcrum (meters)
+
+    function drawScene(userWeight, userDist, angle = 0) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const centerX = canvas.width / 2;
+        const centerY = 150;
+        const scale = 22; // Pixels per meter scale multiplier
+
+        // Draw Fulcrum (Triangle)
+        ctx.fillStyle = '#64748b';
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(centerX - 20, centerY + 45);
+        ctx.lineTo(centerX + 20, centerY + 45);
+        ctx.closePath();
+        ctx.fill();
+
+        // Save context for rotation
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(angle);
+
+        // Draw Lever Beam
+        ctx.fillStyle = '#cbd5e1';
+        ctx.fillRect(-240, -6, 480, 12);
+
+        // Draw Measurement Tick Marks along the beam
+        ctx.fillStyle = '#64748b';
+        for (let i = 1; i <= 10; i++) {
+            ctx.fillRect(i * scale - 1, 6, 2, 6);
+            ctx.fillRect(-i * scale - 1, 6, 2, 6);
+        }
+
+        // --- DRAW TARGET LOAD (Right side - Fixed block with tiny "Fixed Point" label) ---
+        const loadX = loadDist * scale;
+        ctx.fillStyle = '#f87171';
+        ctx.fillRect(loadX - 12, -30, 24, 24);
+
+        // Tiny label above the fixed load
+        ctx.font = '9px sans-serif';
+        ctx.fillStyle = '#f87171';
+        ctx.fillText('Fixed Point', loadX - 22, -40);
+
+        // --- DRAW USER BLOCK (Left side - Dynamic block moving with slider) ---
+        const userX = userDist * scale;
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(-userX - 12, -30, 24, 24);
+
+        ctx.restore();
+    }
+
+    function updateDisplay() {
+        const w = parseInt(weightInput.value);
+        const d = parseInt(distInput.value);
+        weightVal.textContent = w;
+        distVal.textContent = d;
+        
+        // Calculate tilt angle based on torque difference for visual feedback
+        const userTorque = w * d;
+        const loadTorque = loadWeight * loadDist;
+        let tilt = (userTorque - loadTorque) * 0.005;
+        if (tilt > 0.3) tilt = 0.3;
+        if (tilt < -0.3) tilt = -0.3;
+
+        drawScene(w, d, tilt);
+        nextBtn.style.display = 'none'; // Hide next button if sliders change
+    }
+
+    weightInput.addEventListener('input', updateDisplay);
+    distInput.addEventListener('input', updateDisplay);
+
+    testBtn.addEventListener('click', () => {
+        const w = parseInt(weightInput.value);
+        const d = parseInt(distInput.value);
+        
+        const userTorque = w * d;
+        const loadTorque = loadWeight * loadDist;
+
+        if (userTorque === loadTorque) {
+            statusDiv.style.color = 'var(--success)';
+            statusDiv.textContent = 'Success! Perfect Equilibrium Achieved. Level Cleared!';
+            nextBtn.style.display = 'block'; // Reveal the next level button on success
+        } else if (userTorque > loadTorque) {
+            statusDiv.style.color = 'var(--error)';
+            statusDiv.textContent = `Too much torque! (${userTorque} vs target ${loadTorque}). The lever slams upward.`;
+            nextBtn.style.display = 'none';
+        } else {
+            statusDiv.style.color = 'var(--error)';
+            statusDiv.textContent = `Not enough force! (${userTorque} vs target ${loadTorque}). You cannot lift the load.`;
+            nextBtn.style.display = 'none';
+        }
+    });
+
+    // Initial render
+    updateDisplay();
+</script>
+</body>
+</html>

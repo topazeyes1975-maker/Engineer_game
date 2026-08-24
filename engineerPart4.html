@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fonda's Engineering Sandbox: Level 4 - The Wheel & Axle</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #38bdf8;
+            --text: #f8fafc;
+            --success: #4ade80;
+            --error: #f87171;
+            --shop-accent: #a855f7;
+        }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        h1 { margin-top: 0; color: var(--accent); font-size: 1.5rem; }
+        .lesson {
+            background: rgba(56, 189, 248, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .target-panel {
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            padding: 10px 16px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .target-panel span { color: #f87171; font-weight: bold; }
+        canvas {
+            background: #090d16;
+            border-radius: 8px;
+            width: 100%;
+            height: 220px;
+            display: block;
+            margin-bottom: 20px;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label { font-size: 0.85rem; margin-bottom: 6px; color: #94a3b8; }
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+        button {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 12px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.9; }
+        #status {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 15px;
+            min-height: 24px;
+        }
+        .nav-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        .next-btn {
+            display: none;
+            background: var(--success);
+        }
+        .shop-btn {
+            background: var(--shop-accent);
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Engineering Logic: The Wheel & Axle</h1>
+    
+    <div class="lesson">
+        <strong>The Engineering Principle:</strong> A wheel and axle multiplies force by turning a larger radius to move a smaller inner radius. 
+        <em>Mechanical Advantage = Wheel Radius / Axle Radius</em>.
+    </div>
+
+    <!-- Permanent UI Panel showing puzzle specs -->
+    <div class="target-panel">
+        <div>Inner Axle Radius: <span>2 cm</span></div>
+        <div>Target Mechanical Advantage Needed: <span>4x</span></div>
+    </div>
+
+    <canvas id="simCanvas" width="650" height="220"></canvas>
+
+    <div class="controls">
+        <div class="control-group">
+            <label for="wheelInput">Select Outer Wheel Radius: <span id="wheelVal">4</span> cm</label>
+            <input type="range" id="wheelInput" min="2" max="16" value="4">
+        </div>
+    </div>
+
+    <button id="testBtn">Test Wheel & Axle Ratio</button>
+    <div id="status"></div>
+    
+    <!-- Navigation Panel: Next Level & Shop Buttons -->
+    <div class="nav-grid">
+        <button class="next-btn" id="nextBtn" onclick="location.href='engineerPart5.html'">Next Level: Level 5</button>
+        <button class="shop-btn" onclick="location.href='blue-tinkerluff.html'">🛒 Shop: Parts & Codes list</button>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('simCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    const wheelInput = document.getElementById('wheelInput');
+    const wheelVal = document.getElementById('wheelVal');
+    const testBtn = document.getElementById('testBtn');
+    const statusDiv = document.getElementById('status');
+    const nextBtn = document.getElementById('nextBtn');
+
+    const axleRadius = 2; // cm (fixed)
+    const targetMA = 4;   // Target Mechanical Advantage ratio
+
+    function drawScene(wheelR) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const centerX = canvas.width / 2;
+        const centerY = 110;
+        
+        const scale = 8; // pixels per cm
+        const wheelPx = wheelR * scale;
+        const axlePx = axleRadius * scale;
+
+        // Draw Support Structure
+        ctx.fillStyle = '#64748b';
+        ctx.fillRect(centerX - 4, 40, 8, 140);
+
+        // Draw Outer Wheel (transparent circle)
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, wheelPx, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';
+        ctx.fill();
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Draw Inner Axle (solid circle)
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, axlePx, 0, Math.PI * 2);
+        ctx.fillStyle = '#f87171';
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Labels
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '11px sans-serif';
+        ctx.fillText(`Wheel Radius: ${wheelR} cm`, centerX + wheelPx + 10, centerY);
+    }
+
+    function updateDisplay() {
+        const w = parseInt(wheelInput.value);
+        wheelVal.textContent = w;
+        drawScene(w);
+        nextBtn.style.display = 'none'; // Hide next button if slider is moved
+    }
+
+    wheelInput.addEventListener('input', updateDisplay);
+
+        testBtn.addEventListener('click', () => {
+        const w = parseInt(wheelInput.value);
+        const currentMA = w / axleRadius;
+
+        if (currentMA === targetMA) {
+            statusDiv.style.color = 'var(--success)';
+            statusDiv.textContent = `Success! Perfect 4x Mechanical Advantage achieved (${w}cm wheel / ${axleRadius}cm axle). Level Cleared!`;
+            nextBtn.style.display = 'block'; // <-- This line forces the button to appear!
+        } else if (currentMA < targetMA) {
+            statusDiv.style.color = 'var(--error)';
+            statusDiv.textContent = `Ratio too low! Current Mechanical Advantage is ${currentMA.toFixed(1)}x. Make the outer wheel larger!`;
+            nextBtn.style.display = 'none';
+        } else {
+            statusDiv.style.color = 'var(--error)';
+            statusDiv.textContent = `Ratio too high! Current Mechanical Advantage is ${currentMA.toFixed(1)}x. The wheel is oversized for this task. Try scaling it back!`;
+            nextBtn.style.display = 'none';
+        }
+    });
+
+
+    updateDisplay();
+</script>
+
+</body>
+</html>

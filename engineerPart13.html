@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fonda's Engineering Sandbox: Level 13 - Heap Pointer & Scope Tracker</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #38bdf8;
+            --text: #f8fafc;
+            --success: #4ade80;
+            --error: #f87171;
+            --warning: #facc15;
+            --code-bg: #090d16;
+        }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 750px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        h1 { margin-top: 0; color: var(--accent); font-size: 1.5rem; text-align: center; }
+        .lesson {
+            background: rgba(56, 189, 248, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            background: var(--code-bg);
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-family: monospace;
+            font-size: 0.95rem;
+            border: 1px solid #334155;
+        }
+        .hud span { color: var(--warning); font-weight: bold; }
+        
+        .code-box {
+            background: var(--code-bg);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            line-height: 1.8;
+            overflow-x: auto;
+            border: 1px solid #334155;
+            margin-bottom: 15px;
+            white-space: pre-wrap;
+            color: #cbd5e1;
+        }
+
+        .challenge-panel {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .challenge-panel h3 { margin-top: 0; color: var(--warning); font-size: 1rem; }
+        
+        .match-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            background: rgba(0,0,0,0.2);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+        select {
+            background: #1e293b;
+            color: var(--text);
+            border: 1px solid #64748b;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        button#verifyBtn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 12px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+        }
+        button#verifyBtn:hover { opacity: 0.9; }
+        #status { text-align: center; font-weight: bold; margin-top: 15px; min-height: 24px; }
+        .nav-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 15px; }
+        .next-btn { display: none; background: var(--success); color: #000; border: none; padding: 12px; font-weight: bold; border-radius: 6px; cursor: pointer; text-align: center; text-decoration: none;}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Level 13: The Heap Tracker (Memory Scope Challenge)</h1>
+    
+    <div class="lesson">
+        <strong>The Brain-Power Test:</strong> Analyze the C++ function code below. Three variables are dynamically allocated on the heap using <code>new</code> inside different scopes. To prevent a memory leak before the function returns, you must correctly map each pointer to its proper deallocation command.
+    </div>
+
+    <div class="hud">
+        <div>Target Function: <span style="color:var(--accent);">executeTelemetryPipeline()</span></div>
+        <div>Time: <span id="timerDisplay">30</span>s</div>
+    </div>
+
+    <!-- Clean Code Box with No Hints -->
+    <div class="code-box">void executeTelemetryPipeline() {
+    int* primaryNode = new int[2048];
+    
+    if (true) {
+        double* sensorMultiplier = new double[512];
+        // scope block operations...
+    } // sensorMultiplier goes out of scope here!
+
+    char* packetHeader = new char[64];
+    
+    // Where should cleanups happen?
+}</div>
+
+    <!-- Logic Puzzle Matching Panel -->
+    <div class="challenge-panel">
+        <h3>🧠 Pointer Scope & Cleanup Matching</h3>
+        
+        <div class="match-row">
+            <span>1. Pointer <code>primaryNode</code> (allocated array size 2048)</span>
+            <select id="match1">
+                <option value="">-- Select Deallocation --</option>
+                <option value="delete_packet">delete[] packetHeader;</option>
+                <option value="delete_node">delete[] primaryNode;</option>
+                <option value="delete_sensor">delete[] sensorMultiplier;</option>
+            </select>
+        </div>
+
+        <div class="match-row">
+            <span>2. Pointer <code>sensorMultiplier</code> (allocated inside inner block)</span>
+            <select id="match2">
+                <option value="">-- Select Deallocation --</option>
+                <option value="delete_sensor">delete[] sensorMultiplier; (inside inner scope)</option>
+                <option value="delete_node">delete[] primaryNode;</option>
+                <option value="none">Leak it / Do not delete</option>
+            </select>
+        </div>
+
+        <div class="match-row">
+            <span>3. Pointer <code>packetHeader</code> (allocated array size 64)</span>
+            <select id="match3">
+                <option value="">-- Select Deallocation --</option>
+                <option value="delete_node">delete[] primaryNode;</option>
+                <option value="delete_packet">delete[] packetHeader;</option>
+                <option value="none">Leak it / Do not delete</option>
+            </select>
+        </div>
+    </div>
+
+    <button id="verifyBtn" onclick="verifyHeapLogic()">Verify Memory Allocation Logic</button>
+    <button class="shop-btn" onclick="location.href='blue-tinkerluff.html'">🛒 Shop: Parts & Codes list</button>
+    
+    <div id="status"></div>
+    
+    <div class="nav-grid">
+        <a href="engineerPart14.html" class="next-btn" id="nextBtn">Proceed to Level 14</a>
+    </div>
+</div>
+
+<script>
+    let timer = 30;
+    let timerInterval = setInterval(() => {
+        timer--;
+        document.getElementById('timerDisplay').textContent = timer;
+        if (timer <= 0) {
+            clearInterval(timerInterval);
+            document.getElementById('verifyBtn').disabled = true;
+            document.getElementById('status').style.color = 'var(--error)';
+            document.getElementById('status').textContent = 'TIME OUT! Memory corruption detected. Refresh to retry.';
+        }
+    }, 1000);
+
+    function verifyHeapLogic() {
+        const m1 = document.getElementById('match1').value;
+        const m2 = document.getElementById('match2').value;
+        const m3 = document.getElementById('match3').value;
+
+        if (m1 === '' || m2 === '' || m3 === '') {
+            document.getElementById('status').style.color = 'var(--warning)';
+            document.getElementById('status').textContent = 'Incomplete mapping! Please make a selection for all three pointers.';
+            return;
+        }
+
+        // Correct logic: primaryNode matches delete_node, sensorMultiplier matches delete_sensor, packetHeader matches delete_packet
+        if (m1 === 'delete_node' && m2 === 'delete_sensor' && m3 === 'delete_packet') {
+            clearInterval(timerInterval);
+            document.getElementById('status').style.color = 'var(--success)';
+            document.getElementById('status').textContent = 'Brilliant analysis! Heap scopes and pointer deallocations verified perfectly. Level 13 Cleared!';
+            document.getElementById('nextBtn').style.display = 'block';
+            document.getElementById('verifyBtn').disabled = true;
+        } else {
+            document.getElementById('status').style.color = 'var(--error)';
+            document.getElementById('status').textContent = 'Memory Logic Error! Check your scope tracking—remember that inner-block variables must be cleaned up before they drop out of scope.';
+        }
+    }
+</script>
+
+</body>
+</html>

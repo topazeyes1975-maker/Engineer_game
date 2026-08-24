@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fonda's Engineering Sandbox: Level 9 - Custom Rail & Booster Placement</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #38bdf8;
+            --text: #f8fafc;
+            --success: #4ade80;
+            --error: #f87171;
+            --warning: #facc15;
+            --shop-accent: #a855f7;
+        }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        h1 { margin-top: 0; color: var(--accent); font-size: 1.5rem; }
+        .lesson {
+            background: rgba(56, 189, 248, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .target-panel {
+            background: rgba(168, 85, 247, 0.1);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 4px;
+        }
+        .target-panel span { color: #c084fc; font-weight: bold; }
+        canvas {
+            background: #090d16;
+            border-radius: 8px;
+            width: 100%;
+            height: 240px;
+            display: block;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+        .tool-btn {
+            background: #334155;
+            color: var(--text);
+            border: 2px solid #475569;
+            padding: 10px 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .tool-btn.active {
+            border-color: var(--accent);
+            background: rgba(56, 189, 248, 0.2);
+        }
+        button#testBtn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 12px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+        }
+        button#testBtn:hover { opacity: 0.9; }
+        #status { text-align: center; font-weight: bold; margin-top: 15px; min-height: 24px; }
+        .nav-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
+        .next-btn { display: none; background: var(--success); }
+        .shop-btn { background: var(--shop-accent); color: #fff; }
+    button#shop-btn:{opacity: .05;}
+    #status{text-align: center; font-weight: bold; margin-top: 15px; min- height: 24px;}
+    .nav-grid { display: 
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Custom Circuit Lab: Manual Rails & Voltage Boosters</h1>
+    
+    <div class="lesson">
+        <strong>The Engineering Challenge:</strong> Test how power behaves under different setups! Extend your rail to Module 3 and place your **Power Booster** between Module 1 and 2. Watch what happens if you place the booster too early (overvoltage burn-out), too late (dim modules), or stop your rails short!
+    </div>
+
+    <div class="target-panel">
+        <div class="data-row"><div>Task:</div><span>Analyze circuit load behavior & booster placement</span></div>
+        <div class="data-row"><div>Active Tool:</div><span id="currentToolDisplay">Draw Rail Wire</span></div>
+        <div class="data-row"><div><strong>GOAL:</strong></div><span>Correct rail length + Optimal booster position (between 1 & 2)</span></div>
+    </div>
+
+    <div class="toolbar">
+        <button class="tool-btn active" id="btnWire" onclick="setTool('wire')">Draw Rail Wire</button>
+        <button class="tool-btn" id="btnBooster" onclick="setTool('booster')">Place Voltage Booster</button>
+        <button class="tool-btn" onclick="clearCanvas()">Clear Layout</button>
+    </div>
+
+    <canvas id="simCanvas" width="650" height="240"></canvas>
+
+    <button id="testBtn" onclick="testCircuit()">Test Custom Circuit Power</button>
+    <div id="status"></div>
+    
+    <div class="nav-grid">
+        <button class="next-btn" id="nextBtn" onclick="location.href='engineerPart10.html'">Next Level: Level 10</button>
+        <button class="shop-btn" onclick="location.href='blue-tinkerluff.html'">🛒 Shop: Parts & Codes list</button>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('simCanvas');
+    const ctx = canvas.getContext('2d');
+    const statusDiv = document.getElementById('status');
+    const nextBtn = document.getElementById('nextBtn');
+    const toolDisplay = document.getElementById('currentToolDisplay');
+
+    let selectedTool = 'wire'; 
+    let userWires = []; 
+    let boosterPlaced = null; 
+
+    function setTool(tool) {
+        selectedTool = tool;
+        document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
+        if(tool === 'wire') document.getElementById('btnWire').classList.add('active');
+        if(tool === 'booster') document.getElementById('btnBooster').classList.add('active');
+        toolDisplay.textContent = tool === 'wire' ? 'Draw Rail Wire' : 'Place Voltage Booster Module';
+    }
+
+    function clearCanvas() {
+        userWires = [];
+        boosterPlaced = null;
+        statusDiv.textContent = '';
+        nextBtn.style.display = 'none';
+        drawScene();
+    }
+
+    function drawScene() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw Power Source block on the left
+        ctx.fillStyle = '#0e7490';
+        ctx.fillRect(30, 90, 80, 60);
+        ctx.fillStyle = '#fff';
+        ctx.font = '11px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Power Source', 70, 125);
+
+        // Draw 3 distant load modules across the board
+        const targets = [
+            {x: 250, label: 'Module 1'},
+            {x: 430, label: 'Module 2 (Mid)'},
+            {x: 580, label: 'Module 3 (End)'}
+        ];
+
+        targets.forEach((t) => {
+            ctx.beginPath();
+            ctx.arc(t.x, 120, 18, 0, Math.PI * 2);
+            ctx.fillStyle = '#475569';
+            ctx.fill();
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.fillStyle = '#fff';
+            ctx.font = '10px sans-serif';
+            ctx.fillText(t.label, t.x, 155);
+        });
+
+        // Draw user-drawn rail wires dynamically
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 3;
+        userWires.forEach(w => {
+            ctx.beginPath();
+            ctx.moveTo(w.x1, w.y1);
+            ctx.lineTo(w.x2, w.y2);
+            ctx.stroke();
+        });
+
+        // Draw placed booster if any
+        if (boosterPlaced) {
+            ctx.fillStyle = '#a855f7';
+            ctx.fillRect(boosterPlaced.x - 15, boosterPlaced.y - 12, 30, 24);
+            ctx.fillStyle = '#fff';
+            ctx.font = '9px sans-serif';
+            ctx.fillText('BOOSTER', boosterPlaced.x, boosterPlaced.y + 3);
+        }
+    }
+
+    canvas.addEventListener('click', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        const x = (e.clientX - rect.left) * scaleX;
+        const y = (e.clientY - rect.top) * scaleY;
+
+        if (selectedTool === 'wire') {
+            let startX = 110;
+            if (userWires.length > 0) {
+                startX = userWires[userWires.length - 1].x2;
+            }
+            
+            if (x > startX) {
+                userWires.push({x1: startX, y1: 120, x2: x, y2: 120});
+            } else if (userWires.length === 0 && x > 110) {
+                userWires.push({x1: 110, y1: 120, x2: x, y2: 120});
+            }
+        } else if (selectedTool === 'booster') {
+            boosterPlaced = {x: x, y: y};
+        }
+        drawScene();
+    });
+
+    function testCircuit() {
+        let maxWireX = userWires.length > 0 ? userWires[userWires.length - 1].x2 : 110;
+        let reachesModule1 = maxWireX >= 230;
+        let reachesModule2 = maxWireX >= 410;
+        let reachesModule3 = maxWireX >= 560;
+
+        // Redraw base scene to apply simulation lighting
+        drawScene();
+
+        // 1. Check for short lines
+        if (!reachesModule1) {
+            statusDiv.style.color = 'var(--error)';
+            statusDiv.textContent = `Open Circuit: Wire hasn't even reached Module 1 yet! All modules stay dark.`;
+            nextBtn.style.display = 'none';
+            return;
+        }
+
+        if (!reachesModule3) {
+            // Partial line check (e.g., reaching Module 1 or 2, but stopping short)
+            statusDiv.style.color = 'var(--error)';
+            statusDiv.textContent = `Incomplete Rail! Module 1 lights up, but Modules 2 and 3 stay unpowered because the line stops short.`;
+            nextBtn.style.display = 'none';
+            
+            // Light up Module 1 green, leave others dark gray
+            ctx.beginPath(); ctx.arc(250, 120, 18, 0, Math.PI * 2); ctx.fillStyle = '#4ade80'; ctx.fill();
+            return;
+        }
+
+        // 2. Check booster behavior if line reaches the end
+        if (!boosterPlaced) {
+            statusDiv.style.color = 'var(--error)';
+            statusDiv.textContent = `Voltage Drop Warning! Without a booster, Module 1 is bright, Module 2 is dim, and Module 3 cuts out completely!`;
+            nextBtn.style.display = 'none';
+
+            // Visual: Mod 1 bright green, Mod 2 dim yellow, Mod 3 dark red/gray
+            ctx.beginPath(); ctx.arc(250, 120, 18, 0, Math.PI * 2); ctx.fillStyle = '#4ade80'; ctx.fill();
+            ctx.beginPath(); ctx.arc(430, 120, 18, 0, Math.PI * 2); ctx.fillStyle = '#facc15'; ctx.fill();
+            ctx.beginPath(); ctx.arc(580, 120, 18, 0, Math.PI * 2); ctx.fillStyle = '#475569'; ctx.fill();
+            return;
+        }
+
+        // 3. Booster placed too early (between battery and Module 1: x < 300) -> Overvoltage burn-out!
+        if (boosterPlaced.x < 300) {
+            statusDiv.style.color = 'var(--error)';
+            statusDiv.textContent = `Overvoltage Hazard! Placing the booster right at the source overloads the system—Module 1 has burnt out!`;
+            nextBtn.style.display = 'none';
+
+            // Visual: Mod 1 burnt red with warning glow
+            ctx.beginPath(); ctx.arc(250, 120, 18, 0, Math.PI * 2); ctx.fillStyle = '#f87171'; 
+            ctx.shadowColor = '#f87171'; ctx.shadowBlur = 10; ctx.fill(); ctx.shadowBlur = 0;
+            return;
+        }
+
+        // 4. Booster placed too late (past Module 2: x > 500) -> Stuff behind it is dim
+        if (boosterPlaced.x > 500) {
+            statusDiv.style.color = 'var(--error)';
+            statusDiv.textContent = `Late Boost Error! Because the booster is placed too far down, Module 2 suffered a voltage drop and is running dim!`;
+            nextBtn.style.display = 'none';
+
+            // Visual: Mod 1 bright, Mod 2 dim yellow
+            ctx.beginPath(); ctx.arc(250, 120, 18, 0, Math.PI * 2); ctx.fillStyle = '#4ade80'; ctx.fill();
+            ctx.beginPath(); ctx.arc(430, 120, 18, 0, Math.PI * 2); ctx.fillStyle = '#facc15'; ctx.fill();
+            ctx.beginPath(); ctx.arc(580, 120, 18, 0, Math.PI * 2); ctx.fillStyle = '#4ade80'; ctx.fill();
+            return;
+        }
+
+        // 5. Correct Zone (between Module 1 and 2: 300 <= x <= 500) -> Success!
+        statusDiv.style.color = 'var(--success)';
+        statusDiv.textContent = `Perfect Engineering! Full rail extended and Voltage Booster is positioned right in the sweet spot. Level 9 Cleared!`;
+        nextBtn.style.display = 'block';
+        
+        // Light up all modules vibrant green
+        [250, 430, 580].forEach(x => {
+            ctx.beginPath();
+            ctx.arc(x, 120, 18, 0, Math.PI * 2);
+            ctx.fillStyle = '#4ade80';
+            ctx.shadowColor = '#4ade80';
+            ctx.shadowBlur = 12;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        });
+    }
+
+    drawScene();
+</script>
+
+</body>
+</html>

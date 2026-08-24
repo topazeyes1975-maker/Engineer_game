@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fonda's Engineering Sandbox: Level 8 - Introduction to Circuits & LEDs</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #38bdf8;
+            --text: #f8fafc;
+            --success: #4ade80;
+            --error: #f87171;
+            --shop-accent: #a855f7;
+            --led-off: #475569;
+            --led-on: #ef4444;
+        }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        h1 { margin-top: 0; color: var(--accent); font-size: 1.5rem; }
+        .lesson {
+            background: rgba(56, 189, 248, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .target-panel {
+            background: rgba(168, 85, 247, 0.1);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 4px;
+        }
+        .target-panel span { color: #c084fc; font-weight: bold; }
+        canvas {
+            background: #090d16;
+            border-radius: 8px;
+            width: 100%;
+            height: 220px;
+            display: block;
+            margin-bottom: 20px;
+        }
+        .controls { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+        .control-group { display: flex; flex-direction: column; }
+        label { font-size: 0.85rem; margin-bottom: 6px; color: #94a3b8; }
+        select {
+            padding: 10px;
+            background: #0f172a;
+            color: var(--text);
+            border: 1px solid #475569;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        button {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 12px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+        }
+        button:hover { opacity: 0.9; }
+        #status { text-align: center; font-weight: bold; margin-top: 15px; min-height: 24px; }
+        .nav-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
+        .next-btn { display: none; background: var(--success); }
+        .shop-btn { background: var(--shop-accent); color: #fff; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Electronics Lab: Basic LED Circuit & Resistors</h1>
+    
+    <div class="lesson">
+        <strong>The Rule (Ohm's Law):</strong> V = I x R (Voltage = Current x Resistance).<br>
+        To find the safe resistor (R), subtract the LED voltage drop from the source, then divide by desired current: 
+        <em>R = (V_source - V_LED) / Current</em>.<br>
+        Example: (5V - 2V) / 0.014A is approximately 0.214 = 214 ohms (Standard close value: <strong>??? Ω</strong>).
+    </div>
+
+    <!-- UI Panel showing Component Spec Sheet including Current -->
+    <div class="target-panel">
+        <div class="data-row"><div>Power Source:</div><span>Arduino Uno (5V)</span></div>
+        <div class="data-row"><div>LED Voltage Drop:</div><span>2.0V</span></div>
+        <div class="data-row"><div>Target Current (I):</div><span>14 mA (0.014 A)</span></div>
+        <div class="data-row"><div><strong>SAFETY GOAL:</strong></div><span>Prevent Component Failure</span></div>
+    </div>
+
+    <canvas id="simCanvas" width="650" height="220"></canvas>
+
+    <div class="controls">
+        <div class="control-group">
+            <label for="resistorSelect">Select Resistor Value for the Circuit:</label>
+            <select id="resistorSelect">
+                <option value="0">0 Ω (No Resistor - Direct Wire)</option>
+                <option value="100">100 Ω (Low Resistance)</option>
+                <option value="220">220 Ω (Standard Safe Value for 5V)</option>
+                <option value="10000">10,000 Ω (10k Ω - Too High)</option>
+            </select>
+        </div>
+    </div>
+
+    <button id="testBtn">Test Circuit Power</button>
+    <div id="status"></div>
+    
+    <div class="nav-grid">
+        <button class="next-btn" id="nextBtn" onclick="location.href='engineerPart9.html'">Next Level: Level 9</button>
+        <button class="shop-btn" onclick="location.href='blue-tinkerluff.html'">🛒 Shop: Parts & Codes list</button>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('simCanvas');
+    const ctx = canvas.getContext('2d');
+    const resistorSelect = document.getElementById('resistorSelect');
+    const testBtn = document.getElementById('testBtn');
+    const statusDiv = document.getElementById('status');
+    const nextBtn = document.getElementById('nextBtn');
+
+    function drawScene(statusType) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.fillStyle = '#0e7490';
+        ctx.fillRect(40, 60, 120, 100);
+        ctx.fillStyle = '#fff';
+        ctx.font = '12px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Arduino Uno', 100, 105);
+        ctx.fillText('5V Output', 100, 125);
+
+        ctx.fillStyle = '#334155';
+        ctx.fillRect(240, 50, 220, 120);
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillText('Breadboard Hub', 350, 75);
+
+        const resVal = resistorSelect.value;
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(290, 100, 60, 20);
+        ctx.fillStyle = '#000';
+        ctx.font = '10px sans-serif';
+        ctx.fillText(`${resVal}Ω`, 320, 114);
+
+        ctx.beginPath();
+        ctx.arc(530, 110, 25, 0, Math.PI * 2);
+        if (statusType === 'lit') {
+            ctx.fillStyle = '#ef4444';
+            ctx.shadowColor = '#ef4444';
+            ctx.shadowBlur = 15;
+        } else if (statusType === 'blown') {
+            ctx.fillStyle = '#1e293b';
+            ctx.shadowBlur = 0;
+        } else {
+            ctx.fillStyle = '#475569';
+            ctx.shadowBlur = 0;
+        }
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = '#f87171';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = '#fff';
+        ctx.font = '11px sans-serif';
+        ctx.fillText('LED', 530, 65);
+        ctx.fillText(statusType === 'blown' ? 'BURNT OUT' : (statusType === 'lit' ? 'GLOGLOWING' : 'OFF'), 530, 150);
+
+        ctx.beginPath();
+        ctx.moveTo(160, 110);
+        ctx.lineTo(290, 110);
+        ctx.moveTo(350, 110);
+        ctx.lineTo(505, 110);
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+    }
+
+    resistorSelect.addEventListener('change', () => {
+        drawScene('off');
+        nextBtn.style.display = 'none';
+        statusDiv.textContent = '';
+    });
+
+    testBtn.addEventListener('click', () => {
+        const val = parseInt(resistorSelect.value);
+
+        if (val === 0) {
+            drawScene('blown');
+            statusDiv.style.color = 'var(--error)';
+            statusDiv.textContent = `CRITICAL FAILURE! Without a resistor, too much current flows and the LED blows out!`;
+            nextBtn.style.display = 'none';
+        } else if (val === 10000) {
+            drawScene('off');
+            statusDiv.style.color = 'var(--error)';
+            statusDiv.textContent = `Resistance is too high (10kΩ)! Current is choked off, so the LED won't light up.`;
+            nextBtn.style.display = 'none';
+        } else if (val === 220 || val === 100) {
+            if (val === 220) {
+                drawScene('lit');
+                statusDiv.style.color = 'var(--success)';
+                statusDiv.textContent = `Success! Using Ohm's Law, 220Ω is the correct safe choice. The LED is glowing bright! Level Cleared!`;
+                nextBtn.style.display = 'block';
+            } else {
+                drawScene('lit');
+                statusDiv.style.color = 'var(--success)';
+                statusDiv.textContent = `Success! 100Ω works, though 220Ω is the ideal standard calculated from the formula. Level Cleared!`;
+                nextBtn.style.display = 'block';
+            }
+        }
+    });
+
+    drawScene('off');
+</script>
+
+</body>
+</html>

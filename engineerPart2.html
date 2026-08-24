@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fonda's Engineering Sandbox: Level 2 - The Inclined Plane</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #38bdf8;
+            --text: #f8fafc;
+            --success: #4ade80;
+            --warning: #facc15;
+            --error: #f87171;
+            --shop-accent: #a855f7;
+        }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        h1 { margin-top: 0; color: var(--accent); font-size: 1.5rem; }
+        .lesson {
+            background: rgba(56, 189, 248, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .target-panel {
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            padding: 10px 16px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .target-panel span { color: #f87171; font-weight: bold; }
+        canvas {
+            background: #090d16;
+            border-radius: 8px;
+            width: 100%;
+            height: 220px;
+            display: block;
+            margin-bottom: 20px;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label { font-size: 0.85rem; margin-bottom: 6px; color: #94a3b8; }
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+        button {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 12px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.9; }
+        #status {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 15px;
+            min-height: 24px;
+        }
+        .nav-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        .next-btn {
+            display: none;
+            background: var(--success);
+        }
+        .shop-btn {
+            background: var(--shop-accent);
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Engineering Logic: The Inclined Plane</h1>
+    
+    <div class="lesson">
+        <strong>The Engineering Principle:</strong> A ramp reduces the force needed to lift a heavy object by increasing distance. 
+        Find the target ramp length where the efficiency hits the sweet spot!
+    </div>
+
+    <!-- Corrected Permanent UI Panel -->
+    <div class="target-panel">
+        <div>Object Weight: <span>50 kg</span></div>
+        <div>Fixed Height: <span>4 m</span></div>
+        <div>Target Length: <span>10 m</span></div>
+    </div>
+
+    <canvas id="simCanvas" width="650" height="220"></canvas>
+
+    <div class="controls">
+        <div class="control-group">
+            <label for="lengthInput">Ramp Length (Distance): <span id="lengthVal">8</span> m</label>
+            <input type="range" id="lengthInput" min="5" max="15" value="8">
+        </div>
+    </div>
+
+    <button id="testBtn">Test Ramp Efficiency</button>
+    <div id="status"></div>
+    
+    <!-- Navigation Panel: Next Level & Shop Buttons -->
+    <div class="nav-grid">
+        <button class="next-btn" id="nextBtn" onclick="location.href='engineerPart3.html'">Next Level: Level 3</button>
+        <button class="shop-btn" onclick="location.href='blue-tinkerluff.html'">🛒 Shop: Parts & Codes list</button>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('simCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    const lengthInput = document.getElementById('lengthInput');
+    const lengthVal = document.getElementById('lengthVal');
+    const testBtn = document.getElementById('testBtn');
+    const statusDiv = document.getElementById('status');
+    const nextBtn = document.getElementById('nextBtn');
+
+    const objWeight = 50; // kg
+    const rampHeight = 4;  // fixed height in meters
+    const idealLength = 10; // The exact "perfect" target length
+
+    function drawScene(rampLength) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const startX = 100;
+        const baseY = 180;
+        const scale = 25;
+
+        const heightPx = rampHeight * scale;
+        const lengthPx = rampLength * scale;
+
+        // Draw Ground
+        ctx.fillStyle = '#64748b';
+        ctx.fillRect(50, baseY, 550, 4);
+
+        // Draw Ramp
+        ctx.beginPath();
+        ctx.moveTo(startX, baseY);
+        ctx.lineTo(startX + lengthPx, baseY);
+        ctx.lineTo(startX + lengthPx, baseY - heightPx);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';
+        ctx.fill();
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Draw Height Label
+        ctx.font = '11px sans-serif';
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillText(rampHeight + 'm height', startX + lengthPx + 10, baseY - (heightPx / 2));
+
+        // Draw Object on ramp
+        ctx.fillStyle = '#f87171';
+        ctx.fillRect(startX + (lengthPx / 2) - 12, baseY - (heightPx / 2) - 12, 24, 24);
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 10px sans-serif';
+        ctx.fillText(objWeight + 'kg', startX + (lengthPx / 2) - 10, baseY - (heightPx / 2) + 4);
+    }
+
+    function updateDisplay() {
+        const l = parseInt(lengthInput.value);
+        lengthVal.textContent = l;
+        drawScene(l);
+        nextBtn.style.display = 'none'; // Hide next button if user moves slider again
+    }
+
+    lengthInput.addEventListener('input', updateDisplay);
+
+    testBtn.addEventListener('click', () => {
+        const l = parseInt(lengthInput.value);
+        const requiredForce = objWeight * (rampHeight / l);
+
+        if (l === idealLength) {
+            statusDiv.style.color = 'var(--success)';
+            statusDiv.textContent = `Success! Perfect engineering efficiency achieved (Required Force: ${requiredForce.toFixed(1)} kg). Level Cleared!`;
+            nextBtn.style.display = 'block';
+        } else if (l < 8) {
+            statusDiv.style.color = 'var(--error)';
+            statusDiv.textContent = `Too steep! Ramp is too short. Required force is too high (${requiredForce.toFixed(1)} kg).`;
+            nextBtn.style.display = 'none';
+        } else {
+            statusDiv.style.color = 'var(--warning)';
+            statusDiv.textContent = `Balanced! It works, but it's not the optimal engineering design (Required Force: ${requiredForce.toFixed(1)} kg). Keep tweaking!`;
+            nextBtn.style.display = 'none';
+        }
+    });
+
+    updateDisplay();
+</script>
+
+</body>
+</html>

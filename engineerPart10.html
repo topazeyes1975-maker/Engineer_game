@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fhonda's Engineering Sandbox: Level 10 - The Puzzle Dagger Pop Quiz</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #38bdf8;
+            --text: #f8fafc;
+            --success: #4ade80;
+            --error: #f87171;
+            --dagger-gold: #fbbf24;
+        }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        h1 { margin-top: 0; color: var(--accent); font-size: 1.5rem; text-align: center; }
+        .lesson {
+            background: rgba(56, 189, 248, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        canvas {
+            background: #090d16;
+            border-radius: 8px;
+            width: 100%;
+            height: 200px;
+            display: block;
+            margin-bottom: 20px;
+        }
+        .quiz-section {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .quiz-section h3 { margin-top: 0; color: var(--dagger-gold); font-size: 1.1rem; }
+        label { display: block; margin-bottom: 8px; font-size: 0.9rem; cursor: pointer; }
+        input[type="radio"] { margin-right: 8px; }
+        button#forgeBtn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 12px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+        button#forgeBtn:hover { opacity: 0.9; }
+        #status { text-align: center; font-weight: bold; margin-top: 15px; min-height: 24px; }
+        .nav-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 15px; }
+        .next-btn { display: none; background: var(--success); color: #000; border: none; padding: 12px; font-weight: bold; border-radius: 6px; cursor: pointer; text-align: center; text-decoration: none;}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Level 10: The Puzzle Dagger (Capstone Pop Quiz)</h1>
+    
+    <div class="lesson">
+        <strong>The Milestone Challenge:</strong> Welcome to Level 10! Answer the three engineering review puzzles below. When all three are correct, watch the pieces physically slide together, snap into alignment, and forge into a complete golden Puzzle Dagger!
+    </div>
+
+    <canvas id="daggerCanvas" width="650" height="200"></canvas>
+
+    <!-- Part 1: Hilt -->
+    <div class="quiz-section">
+        <h3>1. The Hilt (Mechanical Advantage)</h3>
+        <p style="font-size:0.85rem; margin-top:0;">What mechanical principle provides a force multiplier using a rigid bar pivoting on a fulcrum?</p>
+        <label><input type="radio" name="hilt" value="wrong1"> Inclined Plane</label>
+        <label><input type="radio" name="hilt" value="correct"> Lever</label>
+        <label><input type="radio" name="hilt" value="wrong2"> Pulley System</label>
+    </div>
+
+    <!-- Part 2: Crossguard -->
+    <div class="quiz-section">
+        <h3>2. The Crossguard (Gear Ratios)</h3>
+        <p style="font-size:0.85rem; margin-top:0;">If a driving gear has 20 teeth and a driven gear has 40 teeth, what is the resulting speed and torque shift?</p>
+        <label><input type="radio" name="crossguard" value="correct"> Half speed, double torque</label>
+        <label><input type="radio" name="crossguard" value="wrong1"> Double speed, half torque</label>
+        <label><input type="radio" name="crossguard" value="wrong2"> Equal speed and torque</label>
+    </div>
+
+    <!-- Part 3: Blade -->
+    <div class="quiz-section">
+        <h3>3. The Blade (Circuit Voltage & Boosters)</h3>
+        <p style="font-size:0.85rem; margin-top:0;">Where is the optimal placement for a Voltage Booster on a long-run power rail?</p>
+        <label><input type="radio" name="blade" value="wrong1"> Directly touching the power source (overload hazard)</label>
+        <label><input type="radio" name="blade" value="correct"> Midway down the line (e.g., between Module 1 and 2) to catch voltage drop</label>
+        <label><input type="radio" name="blade" value="wrong2"> Past the very end of Module 3</label>
+    </div>
+
+    <button id="forgeBtn" onclick="evaluateDagger()">Attempt to Forge Puzzle Dagger</button>
+    <button class="shop-btn" onclick="location.href='blue-tinkerluff.html'">🛒 Shop: Parts & Codes list</button>
+    
+    <div id="status"></div>
+    
+    <div class="nav-grid">
+        <a href="engineerPart11.html" class="next-btn" id="nextBtn">Proceed to Next Phase (C++ Transition)</a>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('daggerCanvas');
+    const ctx = canvas.getContext('2d');
+    const statusDiv = document.getElementById('status');
+    const nextBtn = document.getElementById('nextBtn');
+
+    let animationProgress = 0; // 0 = separated, 1 = fully assembled
+    let isForged = false;
+    let animId = null;
+
+    function drawDagger(progress) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Guide track line
+        ctx.strokeStyle = '#1e293b';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(100, 100);
+        ctx.lineTo(550, 100);
+        ctx.stroke();
+
+        // When progress = 0: pieces are spaced out (Hilt at x=130, Crossguard at x=280, Blade at x=450)
+        // When progress = 1: pieces slide together and lock seamlessly (Hilt at 180, Crossguard at 240, Blade at 280)
+        let hiltX = 130 + (50 * progress);
+        let crossguardX = 280 - (40 * progress);
+        let bladeX = 450 - (170 * progress);
+
+        let pieceColor = progress === 1 ? '#fbbf24' : '#475569';
+
+        // 1. Draw Hilt
+        ctx.fillStyle = pieceColor;
+        ctx.fillRect(hiltX, 85, 55, 30);
+        ctx.fillStyle = '#fff';
+        ctx.font = '9px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('HILT', hiltX + 27, 103);
+
+        // 2. Draw Crossguard
+        ctx.fillStyle = pieceColor;
+        ctx.fillRect(crossguardX, 65, 35, 70);
+        ctx.fillStyle = '#fff';
+        ctx.fillText('GUARD', crossguardX + 17, 103);
+
+        // 3. Draw Blade
+        ctx.fillStyle = pieceColor;
+        ctx.beginPath();
+        ctx.moveTo(bladeX, 100);
+        ctx.lineTo(bladeX + 110, 75);
+        ctx.lineTo(bladeX + 150, 100);
+        ctx.lineTo(bladeX + 110, 125);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = progress === 1 ? '#000' : '#fff';
+        ctx.fillText('BLADE', bladeX + 70, 103);
+    }
+
+    function animateAssembly() {
+        if (animationProgress < 1) {
+            animationProgress += 0.05; // speed of assembly
+            if (animationProgress > 1) animationProgress = 1;
+            drawDagger(animationProgress);
+            animId = requestAnimationFrame(animateAssembly);
+        }
+    }
+
+    function evaluateDagger() {
+        const hiltChoice = document.querySelector('input[name="hilt"]:checked');
+        const crossguardChoice = document.querySelector('input[name="crossguard"]:checked');
+        const bladeChoice = document.querySelector('input[name="blade"]:checked');
+
+        let score = 0;
+        if (hiltChoice && hiltChoice.value === 'correct') score++;
+        if (crossguardChoice && crossguardChoice.value === 'correct') score++;
+        if (bladeChoice && bladeChoice.value === 'correct') score++;
+
+        if (score === 3) {
+            isForged = true;
+            statusDiv.style.color = 'var(--success)';
+            statusDiv.textContent = `Brilliant! All components verified. Watch the puzzle pieces slide together into position! Level 10 Cleared!`;
+            nextBtn.style.display = 'block';
+            
+            cancelAnimationFrame(animId);
+            animationProgress = 0;
+            animateAssembly();
+        } else {
+            isForged = false;
+            animationProgress = 0;
+            drawDagger(0);
+            statusDiv.style.color = 'var(--error)';
+            statusDiv.textContent = `Forging Failed (${score}/3 correct)! The pieces remain locked apart. Review your answers and try again.`;
+            nextBtn.style.display = 'none';
+        }
+    }
+
+    // Initial draw (separated state)
+    drawDagger(0);
+</script>
+
+</body>
+</html>

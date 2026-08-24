@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fonda's Engineering Sandbox: Level 5 - Gear Ratios</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #38bdf8;
+            --text: #f8fafc;
+            --success: #4ade80;
+            --error: #f87171;
+            --shop-accent: #a855f7;
+        }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        h1 { margin-top: 0; color: var(--accent); font-size: 1.5rem; }
+        .lesson {
+            background: rgba(56, 189, 248, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .target-panel {
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            padding: 10px 16px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .target-panel span { color: #f87171; font-weight: bold; }
+        canvas {
+            background: #090d16;
+            border-radius: 8px;
+            width: 100%;
+            height: 220px;
+            display: block;
+            margin-bottom: 20px;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label { font-size: 0.85rem; margin-bottom: 6px; color: #94a3b8; }
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+        button {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 12px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.9; }
+        #status {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 15px;
+            min-height: 24px;
+        }
+        .nav-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        .next-btn {
+            display: none;
+            background: var(--success);
+        }
+        .shop-btn {
+            background: var(--shop-accent);
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Engineering Logic: Gear Ratios</h1>
+    
+    <div class="lesson">
+        <strong>The Engineering Principle:</strong> When two gears mesh, their speeds and torques are determined by their tooth count ratio. 
+        <em>Gear Ratio = Driven Gear Teeth / Driver Gear Teeth</em>.
+    </div>
+
+    <!-- Permanent UI Panel showing puzzle specs -->
+    <div class="target-panel">
+        <div>Driver Gear (Input): <span>12 Teeth</span></div>
+        <div>Target Gear Ratio: <span>3x Torque Multiplier</span></div>
+    </div>
+
+    <canvas id="simCanvas" width="650" height="220"></canvas>
+
+    <div class="controls">
+        <div class="control-group">
+            <label for="gearInput">Select Driven Gear Teeth: <span id="gearVal">24</span> teeth</label>
+            <input type="range" id="gearInput" min="12" max="60" step="4" value="24">
+        </div>
+    </div>
+
+    <button id="testBtn">Test Gear Train Ratio</button>
+    <div id="status"></div>
+    
+    <!-- Navigation Panel: Next Level & Shop Buttons -->
+    <div class="nav-grid">
+        <button class="next-btn" id="nextBtn" onclick="location.href='engineerPart6.html'">Next Level: Level 6</button>
+        <button class="shop-btn" onclick="location.href='blue-tinkerluff.html'">🛒 Shop: Parts & Codes list</button>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('simCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    const gearInput = document.getElementById('gearInput');
+    const gearVal = document.getElementById('gearVal');
+    const testBtn = document.getElementById('testBtn');
+    const statusDiv = document.getElementById('status');
+    const nextBtn = document.getElementById('nextBtn');
+
+    const driverTeeth = 12; // Fixed input gear teeth
+    const targetRatio = 3;  // Target gear ratio multiplier
+
+    function drawScene(drivenTeethCount) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const centerY = 110;
+        const driverX = 220;
+        const drivenX = 430;
+
+        // Visual sizing based on teeth count
+        const driverRadius = driverTeeth * 1.5;
+        const drivenRadius = drivenTeethCount * 1.5;
+
+        // Draw Driver Gear (Left)
+        ctx.beginPath();
+        ctx.arc(driverX, centerY, driverRadius, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';
+        ctx.fill();
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = '#fff';
+        ctx.font = '10px sans-serif';
+        ctx.fillText(`Driver (${driverTeeth}T)`, driverX - 25, centerY + 4);
+
+        // Draw Driven Gear (Right)
+        ctx.beginPath();
+        ctx.arc(drivenX, centerY, drivenRadius, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(248, 113, 113, 0.15)';
+        ctx.fill();
+        ctx.strokeStyle = '#f87171';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = '#fff';
+        ctx.fillText(`Driven (${drivenTeethCount}T)`, drivenX - 28, centerY + 4);
+    }
+
+    function updateDisplay() {
+        const t = parseInt(gearInput.value);
+        gearVal.textContent = t;
+        drawScene(t);
+        nextBtn.style.display = 'none'; // Hide next button if slider is adjusted
+    }
+
+    gearInput.addEventListener('input', updateDisplay);
+
+    testBtn.addEventListener('click', () => {
+        const t = parseInt(gearInput.value);
+        const currentRatio = t / driverTeeth;
+
+        if (currentRatio === targetRatio) {
+            statusDiv.style.color = 'var(--success)';
+            statusDiv.textContent = `Success! Perfect 3x gear ratio achieved (${t} teeth driven / ${driverTeeth} teeth driver). Level Cleared!`;
+            nextBtn.style.display = 'block'; // Properly reveal the next level button
+        } else if (currentRatio < targetRatio) {
+            statusDiv.style.color = 'var(--error)';
+            statusDiv.textContent = `Ratio too low! Current ratio is ${currentRatio.toFixed(1)}x. Increase the driven gear's tooth count.`;
+            nextBtn.style.display = 'none';
+        } else {
+            statusDiv.style.color = 'var(--error)';
+            statusDiv.textContent = `Ratio too high! Current ratio is ${currentRatio.toFixed(1)}x. The driven gear is too large for this configuration.`;
+            nextBtn.style.display = 'none';
+        }
+    });
+
+    updateDisplay();
+</script>
+
+</body>
+</html>

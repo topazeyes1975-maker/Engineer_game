@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fonda's Engineering Sandbox: Level 15 - True Hidden Object Bug Hunt</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #38bdf8;
+            --text: #f8fafc;
+            --success: #4ade80;
+            --error: #f87171;
+            --warning: #facc15;
+            --cpp-gold: #fbbf24;
+        }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        h1 { margin-top: 0; color: var(--accent); font-size: 1.5rem; text-align: center; }
+        .lesson {
+            background: rgba(56, 189, 248, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .checklist-panel {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .checklist-panel h3 { margin: 0 0 8px 0; color: var(--cpp-gold); font-size: 1rem; }
+        .target-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-size: 0.85rem;
+        }
+        .target-item {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 6px 10px;
+            border-radius: 4px;
+            border-left: 3px solid var(--warning);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .target-item.found {
+            border-left-color: var(--success);
+            color: #94a3b8;
+            text-decoration: line-through;
+        }
+        .code-box {
+            background: #090d16;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.82rem;
+            line-height: 1.7;
+            overflow-x: auto;
+            border: 1px solid #334155;
+            margin-bottom: 20px;
+            white-space: pre-wrap;
+            color: #cbd5e1;
+        }
+        .bug-line {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .bug-line:hover {
+            color: var(--error);
+            background: rgba(248, 113, 113, 0.1);
+        }
+        .bug-line.squashed {
+            background: rgba(74, 222, 128, 0.15);
+            color: var(--success);
+            border-bottom: 2px solid var(--success);
+            text-decoration: line-through;
+            cursor: default;
+        }
+        #status { text-align: center; font-weight: bold; margin-top: 15px; min-height: 24px; }
+        .nav-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 15px; }
+        .next-btn { display: none; background: var(--success); color: #000; border: none; padding: 12px; font-weight: bold; border-radius: 6px; cursor: pointer; text-align: center; text-decoration: none;}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Level 15: True Hidden Object Bug Hunt</h1>
+    
+    <div class="lesson">
+        <strong>The Hidden Hunt:</strong> The script below contains <strong>5 genuine syntax and logic errors</strong> blending right into the text. Look closely at class endings, types, and pointers—tap the hidden bugs to squash them!
+    </div>
+
+    <div class="checklist-panel">
+        <h3>🔍 Master Bug Checklist (5 Items):</h3>
+        <ul class="target-list">
+            <li class="target-item" id="chk1">1. Missing Class Semicolon</li>
+            <li class="target-item" id="chk2">2. Type Mismatch Declaration</li>
+            <li class="target-item" id="chk3">3. Unscoped Scope Resolution Error</li>
+            <li class="target-item" id="chk4">4. Incorrect Pointer Operator</li>
+            <li class="target-item" id="chk5">5. Missing Return Statement</li>
+        </ul>
+    </div>
+
+    <div class="code-box" id="codeEditor">#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+class NetworkNode {
+private:
+    int nodeId;
+    double bandwidth;
+
+public:
+    NetworkNode(int id) {
+        nodeId = id;
+        bandwidth = 1024.50;
+    }
+    
+    void updateMetrics();
+<span class="bug-line" id="b1" onclick="squashBug(1, '} // 🐛 SQUASHED (Added missing semicolon :)')">}</span>
+
+<span class="bug-line" id="b2" onclick="squashBug(2, 'string NetworkNode::getStatus() { // 🐛 SQUASHED')">string NetworkNode::getStatus() {</span>
+    return "Node Operational";
+}
+
+void NetworkNode::updateMetrics() {
+    <span class="bug-line" id="b3" onclick="squashBug(3, 'vector&lt;int&gt; packetQueue = {10, 20, 30}; // 🐛 SQUASHED')">vector&lt;int&gt; packetQueue = {10, 20, 30};</span>
+    <span class="bug-line" id="b4" onclick="squashBug(4, 'int frontVal = packetQueue.front(); // 🐛 SQUASHED')">int frontVal = packetQueue-&gt;front();</span>
+}
+
+<span class="bug-line" id="b5" onclick="squashBug(5, 'int initializeNodeCluster() { return 0; // 🐛 SQUASHED')">int initializeNodeCluster() {</span>
+    NetworkNode primary(101);
+    primary.updateMetrics();
+}</div>
+
+    <div id="status" style="color: var(--warning);">Scan the code carefully and tap the hidden bugs!</div>
+    
+    <div class="nav-grid">
+        <a href="engineerPart16.html" class="next-btn" id="nextBtn">Proceed to Level 16 (The Variable Scope Maze)</a>
+    </div>
+</div>
+
+<script>
+    let foundBugs = { 1: false, 2: false, 3: false, 4: false, 5: false };
+    let totalFound = 0;
+
+    function squashBug(bugId, fixedText) {
+        if (foundBugs[bugId]) return;
+
+        foundBugs[bugId] = true;
+        totalFound++;
+
+        let lineElem = document.getElementById('b' + bugId);
+        lineElem.classList.add('squashed');
+        lineElem.textContent = fixedText;
+
+        const checklistItem = document.getElementById('chk' + bugId);
+        checklistItem.classList.add('found');
+        checklistItem.innerHTML += ' ✓ (Squashed 🐛)';
+
+        if (totalFound === 5) {
+            document.getElementById('status').style.color = 'var(--success)';
+            document.getElementById('status').textContent = `All 5 bugs squashed flat! Level 15 Cleared!`;
+            document.getElementById('nextBtn').style.display = 'block';
+        } else {
+            document.getElementById('status').style.color = 'var(--accent)';
+            document.getElementById('status').textContent = `Bug squashed! 🐛 ${totalFound}/5 eliminated. Keep hunting.`;
+        }
+    }
+</script>
+
+</body>
+</html>

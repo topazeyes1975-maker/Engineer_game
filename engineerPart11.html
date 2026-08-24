@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fonda's Engineering Sandbox: Level 11 - C++ Source File Puzzle</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #38bdf8;
+            --text: #f8fafc;
+            --success: #4ade80;
+            --error: #f87171;
+            --puzzle-bg: #334155;
+            --puzzle-hover: #475569;
+            --cpp-gold: #fbbf24;
+        }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 750px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        h1 { margin-top: 0; color: var(--accent); font-size: 1.5rem; text-align: center; }
+        .lesson {
+            background: rgba(56, 189, 248, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .reference-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .ref-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.85srem;
+        }
+        .ref-card h4 { margin: 0 0 6px 0; color: var(--cpp-gold); font-size: 0.95rem; }
+        .ref-card p { margin: 0; color: #94a3b8; font-size: 0.8rem; line-height: 1.4; }
+        
+        .puzzle-section {
+            background: #090d16;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+        .puzzle-section h3 { margin-top: 0; color: var(--accent); font-size: 1.1rem; text-align: center; }
+        
+        .drop-zone {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-height: 160px;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 10px;
+            border-radius: 6px;
+            border: 2px dashed #475569;
+            margin-bottom: 15px;
+        }
+        .pieces-pool {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+        .puzzle-piece {
+            background: var(--puzzle-bg);
+            border: 1px solid #64748b;
+            color: var(--text);
+            padding: 10px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .puzzle-piece:hover { background: var(--puzzle-hover); border-color: var(--accent); }
+        
+        button#compileBtn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 12px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+        }
+        button#compileBtn:hover { opacity: 0.9; }
+        #status { text-align: center; font-weight: bold; margin-top: 15px; min-height: 24px; }
+        .nav-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 15px; }
+        .next-btn { display: none; background: var(--success); color: #000; border: none; padding: 12px; font-weight: bold; border-radius: 6px; cursor: pointer; text-align: center; text-decoration: none;}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Level 11: C++ Source File Architecture</h1>
+    
+    <div class="lesson">
+        <strong>The C++ Transition:</strong> Welcome to the C++ coding phase! Just like physical hardware, source code requires strict structural layout. Review the core sections below, then assemble the scrambled code blocks into their proper top-to-bottom sequence to compile the program.
+    </div>
+
+    <!-- Architectural Breakdown Reference Cards -->
+    <div class="reference-grid">
+        <div class="ref-card">
+            <h4>1. Preprocessing Directives</h4>
+            <p>Must be at the very top. Uses #include and #define for libraries and constant definitions.</p>
+        </div>
+        <div class="ref-card">
+            <h4>2. Function Declarations</h4>
+            <p>Lists function signatures before full definition so the compiler knows argument and return types.</p>
+        </div>
+        <div class="ref-card">
+            <h4>3. Variable Initialization</h4>
+            <p>Allocates program-wide state variables, global counters, and data structures.</p>
+        </div>
+        <div class="ref-card">
+            <h4>4. Main Function & Logic</h4>
+            <p>The mandatory entry point (`main()`) that coordinates execution flow and core processing loops.</p>
+        </div>
+    </div>
+
+    <!-- Interactive Puzzle Assembly Area -->
+    <div class="puzzle-section">
+        <h3>Assembly Puzzle: Order the Source File Correctly</h3>
+        <p style="font-size: 0.8rem; text-align: center; color: #94a3b8; margin-top: 0;">Click the blocks below to place them into the execution stack from top to bottom.</p>
+        
+        <div class="drop-zone" id="stackZone" onclick="resetSelection()">
+            <span id="placeholderText" style="color: #64748b; font-style: italic; font-size: 0.85rem; text-align: center; margin: auto;">[ Click code blocks below to build your source file stack here ]</span>
+        </div>
+
+        <div class="pieces-pool" id="poolZone">
+            <div class="puzzle-piece" data-id="variables" onclick="selectPiece(this)">int globalCount = 0; const string APP = "Core";</div>
+            <div class="puzzle-piece" data-id="main" onclick="selectPiece(this)">int main() { cout << "SUCCESS"; while(true) {} }</div>
+            <div class="puzzle-piece" data-id="directives" onclick="selectPiece(this)">#include &lt;iostream&gt; \n#define MAX_BUFFER 1024</div>
+            <div class="puzzle-piece" data-id="declarations" onclick="selectPiece(this)">void printHello(); int calculateArea(int w, int h);</div>
+        </div>
+    </div>
+
+    <button id="compileBtn" onclick="evaluatePuzzle()">Compile & Verify Source Structure</button>
+    <button class="shop-btn" onclick="location.href='blue-tinkerluff.html'">🛒 Shop: Parts & Codes list</button>
+    
+            <div id="status"></div>
+    
+    <div class="nav-grid">
+        <a href="engineerPart12.html" class="next-btn" id="nextBtn">Proceed to Level 12</a>
+    </div>
+</div>
+
+<script>
+    let userStack = [];
+
+    function selectPiece(pieceElem) {
+        const placeholder = document.getElementById('placeholderText');
+        if (placeholder) placeholder.remove();
+
+        // Move piece from pool to stack zone
+        document.getElementById('stackZone').appendChild(pieceElem);
+        pieceElem.setAttribute('onclick', 'returnToPool(this)');
+    }
+
+    function returnToPool(pieceElem) {
+        document.getElementById('poolZone').appendChild(pieceElem);
+        pieceElem.setAttribute('onclick', 'selectPiece(this)');
+
+        const stackZone = document.getElementById('stackZone');
+        if (stackZone.children.length === 0) {
+            stackZone.innerHTML = '<span id="placeholderText" style="color: #64748b; font-style: italic; font-size: 0.85rem; text-align: center; margin: auto;">[ Click code blocks below to build your source file stack here ]</span>';
+        }
+    }
+
+    function resetSelection() {
+        // Handled by individual piece clicks
+    }
+
+    function evaluatePuzzle() {
+        const stackZone = document.getElementById('stackZone');
+        const pieces = stackZone.getElementsByClassName('puzzle-piece');
+
+        if (pieces.length < 4) {
+            document.getElementById('status').style.color = 'var(--error)';
+            document.getElementById('status').textContent = `Incomplete Source File! You need all 4 architectural sections in the stack before compiling.`;
+            return;
+        }
+
+        // Expected order: directives -> declarations -> variables -> main
+        const correctOrder = ['directives', 'declarations', 'variables', 'main'];
+        let userOrder = [];
+
+        for (let p of pieces) {
+            userOrder.push(p.getAttribute('data-id'));
+        }
+
+        let isCorrect = userOrder.every((val, idx) => val === correctOrder[idx]);
+
+        if (isCorrect) {
+            document.getElementById('status').style.color = 'var(--success)';
+            document.getElementById('status').textContent = `Compilation Successful! The C++ file architecture is perfectly sequenced. Level 11 Cleared!`;
+            document.getElementById('nextBtn').style.display = 'block';
+        } else {
+            document.getElementById('status').style.color = 'var(--error)';
+            document.getElementById('status').textContent = `Compilation Error! Structural mismatch. Remember: Directives go at the very top, followed by Declarations, Variables, and finally Main().`;
+            document.getElementById('nextBtn').style.display = 'none';
+        }
+    }
+</script>
+
+</body>
+</html>

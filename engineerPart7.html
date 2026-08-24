@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fhonda's Engineering Sandbox: Level 7 - Compound Gear Trains</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #38bdf8;
+            --text: #f8fafc;
+            --success: #4ade80;
+            --error: #f87171;
+            --shop-accent: #a855f7;
+        }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        h1 { margin-top: 0; color: var(--accent); font-size: 1.5rem; }
+        .lesson {
+            background: rgba(56, 189, 248, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .target-panel {
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 4px;
+        }
+        .target-panel span { color: #f87171; font-weight: bold; }
+        canvas {
+            background: #090d16;
+            border-radius: 8px;
+            width: 100%;
+            height: 220px;
+            display: block;
+            margin-bottom: 20px;
+        }
+        .controls { margin-bottom: 20px; }
+        label { font-size: 0.85rem; margin-bottom: 6px; color: #94a3b8; display: block; }
+        input[type="range"] { width: 100%; cursor: pointer; }
+        button {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 12px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+        }
+        #status { text-align: center; font-weight: bold; margin-top: 15px; min-height: 24px; }
+        .nav-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
+        .next-btn { display: none; background: var(--success); }
+        .shop-btn { background: var(--shop-accent); color: #fff; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Engineering Logic: Compound Gear Trains</h1>
+    
+    <!-- Restored original detailed lesson text -->
+    <div class="lesson">
+        <strong>The Engineering Principle:</strong> In a compound gear train, intermediate gears multiply the ratios across stages. 
+        <em>Total Ratio = (Driven 1 / Driver 1) × (Driven 2 / Driver 2)</em>.
+    </div>
+
+    <!-- UI Panel showing ALL Gear Data clearly -->
+    <div class="target-panel">
+        <div class="data-row"><div>Gear A (Driver 1):</div><span>15 Teeth</span></div>
+        <div class="data-row"><div>Gear B (Driven 1):</div><span>30 Teeth</span></div>
+        <div class="data-row"><div>Gear C (Driver 2):</div><span>15 Teeth</span></div>
+        <div class="data-row"><div><strong>TARGET TOTAL RATIO:</strong></div><span>6x Reduction</span></div>
+    </div>
+
+    <canvas id="simCanvas" width="650" height="220"></canvas>
+
+    <div class="controls">
+        <label for="stage2Input">Select Gear D (Driven 2) Teeth: <span id="stage2Val">45</span> teeth</label>
+        <input type="range" id="stage2Input" min="15" max="75" step="5" value="45">
+    </div>
+
+    <button id="testBtn">Test Compound Train</button>
+    <div id="status"></div>
+    
+    <div class="nav-grid">
+        <button class="next-btn" id="nextBtn" onclick="location.href='engineerPart8.html'">Next Level: Level 8</button>
+        <button class="shop-btn" onclick="location.href='blue-tinkerluff.html'">🛒 Shop: Parts & Codes list</button>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('simCanvas');
+    const ctx = canvas.getContext('2d');
+    const stage2Input = document.getElementById('stage2Input');
+    const stage2Val = document.getElementById('stage2Val');
+    const testBtn = document.getElementById('testBtn');
+    const statusDiv = document.getElementById('status');
+    const nextBtn = document.getElementById('nextBtn');
+
+    const gearA = 15;
+    const gearB = 30;
+    const gearC = 15; 
+    const targetRatio = 6;
+
+    function drawScene(d2Teeth) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const y = 110;
+        const x1=120, x2=325, x3=530;
+        const scale = 2.0;
+
+        [ {x:x1, r:gearA*scale, txt:'A'}, {x:x2, r:gearB*scale, txt:'B'}, {x:x3, r:d2Teeth*scale, txt:'D'} ].forEach((g, i) => {
+            ctx.beginPath();
+            ctx.arc(g.x, y, g.r, 0, Math.PI*2);
+            ctx.fillStyle = (i===2) ? 'rgba(74, 222, 128, 0.15)' : 'rgba(56, 189, 248, 0.15)';
+            ctx.fill();
+            ctx.strokeStyle = (i===2) ? '#4ade80' : '#38bdf8';
+            ctx.stroke();
+            ctx.fillStyle = '#fff';
+            ctx.fillText(`Gear ${g.txt}`, g.x, y - g.r - 8);
+        });
+    }
+
+    stage2Input.addEventListener('input', () => {
+        const val = parseInt(stage2Input.value);
+        stage2Val.textContent = val;
+        drawScene(val);
+        nextBtn.style.display = 'none';
+    });
+
+    testBtn.addEventListener('click', () => {
+        const d2 = parseInt(stage2Input.value);
+        const stage1 = gearB / gearA; 
+        const stage2 = d2 / gearC;    
+        const total = stage1 * stage2;
+
+        if (Math.abs(total - targetRatio) < 0.1) {
+            statusDiv.style.color = 'var(--success)';
+            statusDiv.textContent = `Success! Target compound ratio of 6x achieved perfectly! Level Cleared!`;
+            nextBtn.style.display = 'block';
+        } else if (total < targetRatio) {
+            statusDiv.style.color = 'var(--error)';
+            statusDiv.textContent = `Ratio too low (${total.toFixed(1)}x). Increase Gear D teeth!`;
+        } else {
+            statusDiv.style.color = 'var(--error)';
+            statusDiv.textContent = `Ratio too high (${total.toFixed(1)}x). Decrease Gear D teeth!`;
+        }
+    });
+    
+    drawScene(45);
+</script>
+</body>
+</html>
